@@ -22,11 +22,17 @@ public class NGO {
 
     private boolean approved = false;
 
+    private String registrationNumber;
+
+    private Integer capacity;
+
+    private String verificationDocumentPath;
+
+    private String homePhotoPath;
 
     // Default constructor
     public NGO() {
     }
-
 
     // Getters and Setters
 
@@ -84,5 +90,37 @@ public class NGO {
 
     public void setApproved(boolean approved) {
         this.approved = approved;
+    }
+
+    public String getRegistrationNumber() {
+        return registrationNumber;
+    }
+
+    public void setRegistrationNumber(String registrationNumber) {
+        this.registrationNumber = registrationNumber;
+    }
+
+    public Integer getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(Integer capacity) {
+        this.capacity = capacity;
+    }
+
+    public String getVerificationDocumentPath() {
+        return verificationDocumentPath;
+    }
+
+    public void setVerificationDocumentPath(String verificationDocumentPath) {
+        this.verificationDocumentPath = verificationDocumentPath;
+    }
+
+    public String getHomePhotoPath() {
+        return homePhotoPath;
+    }
+
+    public void setHomePhotoPath(String homePhotoPath) {
+        this.homePhotoPath = homePhotoPath;
     }
 }

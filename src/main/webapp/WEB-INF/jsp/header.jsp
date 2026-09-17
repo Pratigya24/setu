@@ -5,7 +5,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SETU - Bridging Donors & NGOs</title>
+    <title>SETU - Bridging Donors & Charitable Homes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 </head>
 <body>
@@ -17,14 +20,14 @@
         <c:choose>
             <c:when test="${sessionScope.role == 'DONOR'}">
                 <a href="${pageContext.request.contextPath}/donor/dashboard">Dashboard</a>
-                <a href="${pageContext.request.contextPath}/donor/browse-ngos">Browse NGOs</a>
+                <a href="${pageContext.request.contextPath}/donor/browse-ngos">Browse Homes</a>
                 <span class="role-badge">Donor</span>
                 <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline">Logout</a>
             </c:when>
             <c:when test="${sessionScope.role == 'NGO'}">
                 <a href="${pageContext.request.contextPath}/ngo/dashboard">Dashboard</a>
                 <a href="${pageContext.request.contextPath}/ngo/post-requirement">Post Requirement</a>
-                <span class="role-badge">NGO</span>
+                <span class="role-badge">Charitable Home</span>
                 <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline">Logout</a>
             </c:when>
             <c:when test="${sessionScope.role == 'VOLUNTEER'}">

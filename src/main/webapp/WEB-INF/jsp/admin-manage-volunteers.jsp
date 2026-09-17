@@ -7,7 +7,7 @@
         <p class="sidebar__title">Admin Menu</p>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/admin/dashboard">Dashboard</a>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/admin/manage-users">Manage Users</a>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/admin/manage-ngos">Manage NGOs</a>
+        <a class="sidebar__link" href="${pageContext.request.contextPath}/admin/manage-ngos">Manage Charitable Homes</a>
         <a class="sidebar__link sidebar__link--active" href="${pageContext.request.contextPath}/admin/manage-volunteers">Manage Volunteers</a>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/admin/reports">Reports</a>
     </aside>
@@ -21,9 +21,9 @@
                 <thead>
                 <tr>
                     <th>Volunteer</th>
-                    <th>Skills</th>
                     <th>Availability</th>
                     <th>Status</th>
+                    <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -31,28 +31,28 @@
                     <tr>
                         <td>
                             <div class="user-cell">
-                                <span class="avatar">${v.user.name.substring(0,1)}</span>
+                                <span class="avatar">${v.name.substring(0,1)}</span>
                                 <div>
-                                    <div class="user-cell__name">${v.user.name}</div>
-                                    <div class="user-cell__email">${v.user.email}</div>
+                                    <div class="user-cell__name">${v.name}</div>
+                                    <div class="user-cell__email">${v.email}</div>
                                 </div>
                             </div>
-                        </td>
-                        <td>
-                            <c:forEach var="skill" items="${v.skills.split(',')}">
-                                <span class="chip">${skill}</span>
-                            </c:forEach>
                         </td>
                         <td>${v.availability}</td>
                         <td>
                             <c:choose>
-                                <c:when test="${v.status == 'APPROVED'}">
+                                <c:when test="${v.approved}">
                                     <span class="pill pill-low">Approved</span>
                                 </c:when>
                                 <c:otherwise>
-                                    <span class="pill pill-medium">${v.status}</span>
+                                    <span class="pill pill-medium">Pending</span>
                                 </c:otherwise>
                             </c:choose>
+                        </td>
+                        <td>
+                            <c:if test="${!v.approved}">
+                                <a href="${pageContext.request.contextPath}/admin/approve-volunteer?id=${v.id}" class="btn btn-primary">Approve</a>
+                            </c:if>
                         </td>
                     </tr>
                 </c:forEach>

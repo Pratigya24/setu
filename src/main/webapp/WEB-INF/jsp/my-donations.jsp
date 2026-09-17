@@ -31,6 +31,15 @@
                 <a href="${pageContext.request.contextPath}/donor/browse-ngos">Browse NGOs</a> to get started.
             </div>
         </c:if>
+        
+        <c:if test="${empty donationList}">
+    <div class="empty-state">
+        <img class="empty-state-img" src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" alt="No donations">
+        <p>You haven't made any donations yet.
+        <a href="${pageContext.request.contextPath}/donor/browse-ngos">Browse NGOs</a> to get started.</p>
+    </div>
+</c:if>
+
     </div>
 </div>
 

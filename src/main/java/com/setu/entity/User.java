@@ -1,5 +1,6 @@
 package com.setu.entity;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -103,4 +104,27 @@ public class User {
     public void setAddress(String address) {
         this.address = address;
     }
+    
+    
+
+ // ... existing fields ke saath ...
+ private String resetToken;
+ private LocalDateTime resetTokenExpiry;
+
+ // ... existing getters-setters ke saath ...
+ public String getResetToken() {
+     return resetToken;
+ }
+
+ public void setResetToken(String resetToken) {
+     this.resetToken = resetToken;
+ }
+
+ public LocalDateTime getResetTokenExpiry() {
+     return resetTokenExpiry;
+ }
+
+ public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) {
+     this.resetTokenExpiry = resetTokenExpiry;
+ }
 }

@@ -16,6 +16,7 @@ public interface DonationRepository extends JpaRepository<Donation, Long> {
     List<Donation> findByNgo(NGO ngo);
     List<Donation> findByNgoIsNullAndStatus(String status);
 
+    List<Donation> findByNgoId(Long ngoId);
     @Modifying
     @Transactional
     @Query("UPDATE Donation d SET d.ngo = :ngo, d.status = 'ACCEPTED' WHERE d.id = :id AND d.ngo IS NULL")
