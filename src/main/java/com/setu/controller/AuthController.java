@@ -2,7 +2,8 @@ package com.setu.controller;
 
 import com.setu.entity.*;
 import com.setu.repository.*;
-//import com.setu.services.EmailService;
+import com.setu.services.EmailService;
+import com.setu.services.OtpService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -28,8 +29,10 @@ public class AuthController {
     @Autowired private UserRepository userRepository;
     @Autowired private NGORepository ngoRepository;
     @Autowired private VolunteerRepository volunteerRepository;
-//    @Autowired private EmailService emailService;
+    @Autowired private EmailService emailService;
+    @Autowired private OtpService otpService;
 
+    
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     // Base folder where all NGO proof documents/photos get stored
@@ -186,17 +189,18 @@ public class AuthController {
         session.invalidate();
         return "redirect:/";
     }
-
-    // ---------- FORGOT PASSWORD ----------
+    
+    
+ // ---------- FORGOT PASSWORD PAGE ----------
     @GetMapping("/forgot-password")
     public String forgotPasswordPage() {
         return "forgot-password";
     }
 
+
+ // ---------- FORGOT PASSWORD (OTP based) ----------
     @PostMapping("/forgot-password")
-    public String forgotPasswordSubmit(@RequestParam String email,
-                                        HttpServletRequest request,
-                                        Model model) {
+    public String forgotPasswordSubmit(@RequestParam String email, Model model) {
 
         Optional<User> userOpt = userRepository.findByEmail(email);
 
@@ -205,21 +209,46 @@ public class AuthController {
             return "forgot-password";
         }
 
+        String otp = otpService.generateOtp(email);
+        emailService.sendOtpEmail(email, otp);
+
+        model.addAttribute("email", email);
+        model.addAttribute("successMsg", "An OTP has been sent to your email.");
+        return "verify-otp";
+    }
+
+    // ---------- VERIFY OTP + SET NEW PASSWORD ----------
+    @PostMapping("/verify-otp")
+    public String verifyOtpAndReset(@RequestParam String email,
+                                     @RequestParam String otp,
+                                     @RequestParam String newPassword,
+                                     @RequestParam String confirmPassword,
+                                     Model model) {
+
+        if (!otpService.verifyOtp(email, otp)) {
+            model.addAttribute("errorMsg", "Invalid or expired OTP.");
+            model.addAttribute("email", email);
+            return "verify-otp";
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            model.addAttribute("errorMsg", "Passwords do not match.");
+            model.addAttribute("email", email);
+            return "verify-otp";
+        }
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            model.addAttribute("errorMsg", "Account not found.");
+            return "forgot-password";
+        }
+
         User user = userOpt.get();
-        String token = UUID.randomUUID().toString();
-        user.setResetToken(token);
-        user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(30));
+        user.setPassword(encoder.encode(newPassword));
         userRepository.save(user);
 
-        int port = request.getServerPort();
-        String portPart = (port == 80 || port == 443) ? "" : ":" + port;
-        String resetLink = request.getScheme() + "://" + request.getServerName() + portPart +
-                request.getContextPath() + "/reset-password?token=" + token;
-
-//        emailService.sendPasswordResetEmail(email, resetLink);
-
-        model.addAttribute("successMsg", "A password reset link has been sent to your email.");
-        return "forgot-password";
+        model.addAttribute("successMsg", "Password reset successful! Please login.");
+        return "login";
     }
 
     // ---------- RESET PASSWORD ----------
