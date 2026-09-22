@@ -7,7 +7,7 @@
         <p class="sidebar__title">Admin Menu</p>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/admin/dashboard">Dashboard</a>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/admin/manage-users">Manage Users</a>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/admin/manage-ngos">Manage NGOs</a>
+		<a class="sidebar__link" href="${pageContext.request.contextPath}/admin/manage-ngos">Manage Charitable Homes</a>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/admin/manage-volunteers">Manage Volunteers</a>
         <a class="sidebar__link sidebar__link--active" href="${pageContext.request.contextPath}/admin/reports">Reports</a>
     </aside>

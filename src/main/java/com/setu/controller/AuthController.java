@@ -5,7 +5,6 @@ import com.setu.repository.*;
 import com.setu.services.EmailService;
 import com.setu.services.OtpService;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,7 +20,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 @Controller
 public class AuthController {
@@ -32,10 +30,8 @@ public class AuthController {
     @Autowired private EmailService emailService;
     @Autowired private OtpService otpService;
 
-    
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-    // Base folder where all NGO proof documents/photos get stored
     private static final String NGO_UPLOAD_DIR = "uploads/ngo-documents/";
 
     // ---------- REGISTER ----------
@@ -62,12 +58,40 @@ public class AuthController {
             return "register";
         }
 
-        // Charitable Home (NGO) must upload a verification document
         if ("NGO".equals(role) && (verificationDocument == null || verificationDocument.isEmpty())) {
             model.addAttribute("errorMsg", "Please upload a verification document to register as a Charitable Home.");
             return "register";
         }
 
+        // Handle NGO file uploads FIRST, before saving anything to DB
+        String docPath = null;
+        String photoPath = null;
+
+        if ("NGO".equals(role)) {
+            try {
+                Path uploadDir = Paths.get(NGO_UPLOAD_DIR);
+                Files.createDirectories(uploadDir);
+
+                String docFileName = System.currentTimeMillis() + "_" + verificationDocument.getOriginalFilename();
+                Files.copy(verificationDocument.getInputStream(),
+                        uploadDir.resolve(docFileName),
+                        StandardCopyOption.REPLACE_EXISTING);
+                docPath = NGO_UPLOAD_DIR + docFileName;
+
+                if (homePhoto != null && !homePhoto.isEmpty()) {
+                    String photoFileName = System.currentTimeMillis() + "_" + homePhoto.getOriginalFilename();
+                    Files.copy(homePhoto.getInputStream(),
+                            uploadDir.resolve(photoFileName),
+                            StandardCopyOption.REPLACE_EXISTING);
+                    photoPath = NGO_UPLOAD_DIR + photoFileName;
+                }
+            } catch (IOException e) {
+                model.addAttribute("errorMsg", "Failed to upload verification document. Please try again.");
+                return "register";
+            }
+        }
+
+        // Only NOW save the User, after file upload succeeded
         User user = new User();
         user.setName(name);
         user.setEmail(email);
@@ -84,34 +108,11 @@ public class AuthController {
                 ngo.setEmail(email);
                 ngo.setPhone(phone);
                 ngo.setAddress(address);
-                ngo.setApproved(false); // stays pending until admin approves
+                ngo.setApproved(false);
                 ngo.setRegistrationNumber(registrationNumber);
                 ngo.setCapacity(capacity);
-
-                try {
-                    Path uploadDir = Paths.get(NGO_UPLOAD_DIR);
-                    Files.createDirectories(uploadDir);
-
-                    // Save verification document (required)
-                    String docFileName = System.currentTimeMillis() + "_" + verificationDocument.getOriginalFilename();
-                    Files.copy(verificationDocument.getInputStream(),
-                            uploadDir.resolve(docFileName),
-                            StandardCopyOption.REPLACE_EXISTING);
-                    ngo.setVerificationDocumentPath(NGO_UPLOAD_DIR + docFileName);
-
-                    // Save home/shelter photo (optional)
-                    if (homePhoto != null && !homePhoto.isEmpty()) {
-                        String photoFileName = System.currentTimeMillis() + "_" + homePhoto.getOriginalFilename();
-                        Files.copy(homePhoto.getInputStream(),
-                                uploadDir.resolve(photoFileName),
-                                StandardCopyOption.REPLACE_EXISTING);
-                        ngo.setHomePhotoPath(NGO_UPLOAD_DIR + photoFileName);
-                    }
-                } catch (IOException e) {
-                    model.addAttribute("errorMsg", "Failed to upload verification document. Please try again.");
-                    return "register";
-                }
-
+                ngo.setVerificationDocumentPath(docPath);
+                ngo.setHomePhotoPath(photoPath);
                 ngoRepository.save(ngo);
             }
             case "VOLUNTEER" -> {
@@ -150,7 +151,6 @@ public class AuthController {
 
         User user = userOpt.get();
 
-        // Block login for Charitable Homes until admin approves them
         if ("NGO".equals(user.getRole())) {
             Optional<NGO> ngoOpt = ngoRepository.findByEmail(email);
             if (ngoOpt.isPresent() && !ngoOpt.get().isApproved()) {
@@ -160,7 +160,6 @@ public class AuthController {
             }
         }
 
-        // Block login for Volunteers until admin approves them
         if ("VOLUNTEER".equals(user.getRole())) {
             Optional<Volunteer> volOpt = volunteerRepository.findByEmail(email);
             if (volOpt.isPresent() && !volOpt.get().isApproved()) {
@@ -189,16 +188,14 @@ public class AuthController {
         session.invalidate();
         return "redirect:/";
     }
-    
-    
- // ---------- FORGOT PASSWORD PAGE ----------
+
+    // ---------- FORGOT PASSWORD PAGE ----------
     @GetMapping("/forgot-password")
     public String forgotPasswordPage() {
         return "forgot-password";
     }
 
-
- // ---------- FORGOT PASSWORD (OTP based) ----------
+    // ---------- FORGOT PASSWORD (OTP based) ----------
     @PostMapping("/forgot-password")
     public String forgotPasswordSubmit(@RequestParam String email, Model model) {
 

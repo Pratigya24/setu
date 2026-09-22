@@ -54,6 +54,19 @@
                                 <a href="${pageContext.request.contextPath}/admin/approve-volunteer?id=${v.id}" class="btn btn-primary">Approve</a>
                             </c:if>
                         </td>
+                        <td>
+    <div style="display:flex; gap:0.5rem;">
+        <c:if test="${!v.approved}">
+            <a href="${pageContext.request.contextPath}/admin/approve-volunteer?id=${v.id}" class="btn btn-primary" style="padding:0.3rem 0.7rem; font-size:0.75rem;">Approve</a>
+        </c:if>
+        <a href="${pageContext.request.contextPath}/admin/delete-volunteer?id=${v.id}"
+           class="btn btn-outline"
+           style="padding:0.3rem 0.7rem; font-size:0.75rem; color:#b91c1c; border-color:#fecaca;"
+           onclick="return confirm('Delete this volunteer permanently?');">
+            Delete
+        </a>
+    </div>
+</td>
                     </tr>
                 </c:forEach>
                 </tbody>

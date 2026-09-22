@@ -5,7 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SETU - Bridging Donors & Charitable Homes</title>
+    <title>SETU - Bridging Donors &amp; Charitable Homes</title>
+    <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/images/setu-logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,7 +14,9 @@
 </head>
 <body>
 <nav class="navbar">
-    <a href="${pageContext.request.contextPath}/" class="navbar__logo">SETU</a>
+    <a href="${pageContext.request.contextPath}/" class="navbar__logo">
+<img src="${pageContext.request.contextPath}/images/setu-logo.png" alt="SETU" width="157" height="157">        
+    </a>
     <div class="navbar__links">
         <a href="${pageContext.request.contextPath}/">Home</a>
 

@@ -7,7 +7,7 @@
         <p class="sidebar__title">Admin Menu</p>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/admin/dashboard">Dashboard</a>
         <a class="sidebar__link sidebar__link--active" href="${pageContext.request.contextPath}/admin/manage-users">Manage Users</a>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/admin/manage-ngos">Manage NGOs</a>
+		<a class="sidebar__link" href="${pageContext.request.contextPath}/admin/manage-ngos">Manage Charitable Homes</a>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/admin/manage-volunteers">Manage Volunteers</a>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/admin/reports">Reports</a>
     </aside>
@@ -27,8 +27,8 @@
                     <th>User</th>
                     <th>Role</th>
                     <th>Phone</th>
-                    <th>Status</th>
-                    <th>Joined</th>
+                    <th>Address</th>
+                    <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -45,17 +45,15 @@
                         </td>
                         <td><span class="pill pill-open">${u.role}</span></td>
                         <td>${u.phone}</td>
+                        <td>${u.address}</td>
                         <td>
-                            <c:choose>
-                                <c:when test="${u.status == 'ACTIVE'}">
-                                    <span class="pill pill-low">Active</span>
-                                </c:when>
-                                <c:otherwise>
-                                    <span class="pill pill-urgent">${u.status}</span>
-                                </c:otherwise>
-                            </c:choose>
+                            <a href="${pageContext.request.contextPath}/admin/delete-user?id=${u.id}"
+                               class="btn btn-outline"
+                               style="padding:0.35rem 0.8rem; font-size:0.78rem; color:#b91c1c; border-color:#fecaca;"
+                               onclick="return confirm('Delete this user permanently?');">
+                                Delete
+                            </a>
                         </td>
-                        <td>${u.createdAt}</td>
                     </tr>
                 </c:forEach>
                 </tbody>

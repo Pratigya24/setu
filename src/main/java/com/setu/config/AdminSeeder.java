@@ -23,7 +23,7 @@ public class AdminSeeder implements CommandLineRunner {
         if (userRepository.findByEmail(adminEmail).isEmpty()) {
             User admin = new User();
             admin.setName("SETU Admin");
-            admin.setEmail("pratigyamaurya595@gmail.com");
+            admin.setEmail(adminEmail);
             admin.setPassword(encoder.encode("Admin@123"));
             admin.setPhone("9999999999"); // used for the OTP step at login
             admin.setRole("ADMIN");

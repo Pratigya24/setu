@@ -337,7 +337,16 @@ public class ViewController {
         model.addAttribute("volunteerList", volunteerRepository.findAll());
         return "admin-manage-volunteers";
     }
+    @GetMapping("/admin/approve-volunteer")
+    public String approveVolunteer(@RequestParam Long id) {
+        volunteerRepository.findById(id).ifPresent(v -> {
+            v.setApproved(true);
+            volunteerRepository.save(v);
+        });
+        return "redirect:/admin/manage-volunteers";
+    }
 
+    
     @GetMapping("/admin/reports")
     public String adminReports(Model model) {
         model.addAttribute("totalDonations", donationRepository.count());
@@ -345,6 +354,33 @@ public class ViewController {
         return "admin-reports";
     }
 
+    @GetMapping("/admin/delete-user")
+    public String deleteUser(@RequestParam Long id) {
+        userRepository.deleteById(id);
+        return "redirect:/admin/manage-users";
+    }
+
+    @GetMapping("/admin/delete-ngo")
+    public String deleteNgoAccount(@RequestParam Long id) {
+        NGO ngo = ngoRepository.findById(id).orElse(null);
+        if (ngo != null) {
+            userRepository.findByEmail(ngo.getEmail()).ifPresent(userRepository::delete);
+            ngoRepository.deleteById(id);
+        }
+        return "redirect:/admin/manage-ngos";
+    }
+
+    @GetMapping("/admin/delete-volunteer")
+    public String deleteVolunteerAccount(@RequestParam Long id) {
+        Volunteer volunteer = volunteerRepository.findById(id).orElse(null);
+        if (volunteer != null) {
+            userRepository.findByEmail(volunteer.getEmail()).ifPresent(userRepository::delete);
+            volunteerRepository.deleteById(id);
+        }
+        return "redirect:/admin/manage-volunteers";
+    }
+   
+    
     // ---------- HELPER METHODS ----------
     private User getLoggedInUser(HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
