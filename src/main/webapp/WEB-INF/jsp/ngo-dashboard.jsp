@@ -1,3 +1,5 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <jsp:include page="header.jsp" />
 
 <div class="dashboard-shell">
@@ -27,7 +29,7 @@
                 <div class="stat-card__label">Verification Status</div>
                 <div class="stat-card__value" style="font-size:1rem;">
                     <c:choose>
-                        <c:when test="${sessionScope.verified == true}">
+                        <c:when test="${ngoApproved}">
                             <span class="pill pill-low">Verified</span>
                         </c:when>
                         <c:otherwise>
@@ -39,18 +41,23 @@
         </div>
 
         <h2 style="font-size:1.1rem; margin-bottom:1rem;">Recent Requests</h2>
-        <c:forEach var="request" items="${myRequests}">
-            <div class="item-card">
-                <div class="item-card__info">
-                    <h3>${request.title}</h3>
-                    <p>Needed: ${request.quantityNeeded} • Posted: ${request.requestDate}</p>
-                </div>
-                <span class="pill pill-open">${request.status}</span>
-            </div>
-        </c:forEach>
-        <c:if test="${empty myRequests}">
-            <div class="empty-state">No requirements posted yet. <a href="${pageContext.request.contextPath}/ngo/post-requirement">Post one now</a>.</div>
-        </c:if>
+
+        <c:choose>
+            <c:when test="${not empty myRequests}">
+                <c:forEach var="request" items="${myRequests}">
+                    <div class="item-card">
+                        <div class="item-card__info">
+                            <h3>${request.title}</h3>
+                            <p>Needed: ${request.quantity} &bull; Posted: ${request.requestDate}</p>
+                        </div>
+                        <span class="pill pill-open">${request.status}</span>
+                    </div>
+                </c:forEach>
+            </c:when>
+            <c:otherwise>
+                <div class="empty-state">No requirements posted yet. <a href="${pageContext.request.contextPath}/ngo/post-requirement">Post one now</a>.</div>
+            </c:otherwise>
+        </c:choose>
     </div>
 </div>
 

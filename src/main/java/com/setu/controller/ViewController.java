@@ -2,6 +2,7 @@ package com.setu.controller;
 
 import com.setu.entity.*;
 import com.setu.repository.*;
+import com.setu.services.EmailService;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ public class ViewController {
     @Autowired private DonationRepository donationRepository;
     @Autowired private RequestRepository requestRepository;
     @Autowired private CategoryRepository categoryRepository;
+    @Autowired private EmailService emailService;
 
     // ---------- HOME ----------
     @GetMapping("/")
@@ -198,6 +200,7 @@ public class ViewController {
                                      @RequestParam Long categoryId,
                                      @RequestParam String description,
                                      @RequestParam Integer quantity,
+                                     @RequestParam(required = false, defaultValue = "Low") String urgency,
                                      HttpSession session, Model model) {
 
         NGO ngo = getLoggedInNgo(session);
@@ -207,6 +210,7 @@ public class ViewController {
         request.setTitle(title);
         request.setDescription(description);
         request.setQuantity(quantity);
+        request.setUrgency(urgency);
         request.setStatus("PENDING");
         categoryRepository.findById(categoryId).ifPresent(request::setCategory);
 
@@ -310,13 +314,21 @@ public class ViewController {
         ngoRepository.findById(id).ifPresent(ngo -> {
             ngo.setApproved(true);
             ngoRepository.save(ngo);
+            emailService.sendNgoApprovedEmail(ngo.getEmail(), ngo.getName());
         });
         return "redirect:/admin/dashboard";
     }
 
     @GetMapping("/admin/reject-ngo")
     public String rejectNgo(@RequestParam Long id) {
-        ngoRepository.deleteById(id);
+        ngoRepository.findById(id).ifPresent(ngo -> {
+            emailService.sendNgoRejectedEmail(ngo.getEmail(), ngo.getName());
+            // Also remove the linked User account so no orphaned NGO-role
+            // user is left behind that could otherwise bypass the approval
+            // check at login (see AuthController.login()).
+            userRepository.findByEmail(ngo.getEmail()).ifPresent(userRepository::delete);
+            ngoRepository.deleteById(id);
+        });
         return "redirect:/admin/dashboard";
     }
 
@@ -342,6 +354,7 @@ public class ViewController {
         volunteerRepository.findById(id).ifPresent(v -> {
             v.setApproved(true);
             volunteerRepository.save(v);
+            emailService.sendVolunteerApprovedEmail(v.getEmail(), v.getName());
         });
         return "redirect:/admin/manage-volunteers";
     }

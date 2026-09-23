@@ -1,3 +1,5 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <jsp:include page="header.jsp" />
 
 <div class="dashboard-shell">
@@ -17,8 +19,8 @@
         <c:forEach var="donation" items="${receivedDonations}">
             <div class="item-card">
                 <div class="item-card__info">
-                    <h3>${donation.itemName} — Qty ${donation.quantity}</h3>
-                    <p>From: ${donation.donorName} • ${donation.donationDate}</p>
+                    <h3>${donation.title} &mdash; Qty ${donation.quantity}</h3>
+                    <p>From: ${donation.donor.name} &bull; ${donation.donationDate}</p>
                 </div>
                 <span class="pill pill-open">${donation.status}</span>
             </div>

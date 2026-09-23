@@ -29,6 +29,14 @@ public class Request {
      * REJECTED
      */
 
+    private String urgency;
+
+    /*
+     * Low
+     * Medium
+     * High
+     */
+
     private LocalDateTime requestDate;
 
     // NGO creating the request
@@ -105,6 +113,14 @@ public class Request {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getUrgency() {
+        return urgency;
+    }
+
+    public void setUrgency(String urgency) {
+        this.urgency = urgency;
     }
 
     public LocalDateTime getRequestDate() {

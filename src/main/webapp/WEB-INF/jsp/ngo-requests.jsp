@@ -1,3 +1,5 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <jsp:include page="header.jsp" />
 
 <div class="dashboard-shell">
@@ -21,7 +23,18 @@
                     <p>${request.description}</p>
                     <div class="item-card__meta">
                         <span class="pill pill-open">${request.status}</span>
-                        <span class="pill pill-low">Qty: ${request.quantityNeeded}</span>
+                        <c:choose>
+                            <c:when test="${request.urgency == 'High'}">
+                                <span class="pill pill-urgent">High Urgency</span>
+                            </c:when>
+                            <c:when test="${request.urgency == 'Medium'}">
+                                <span class="pill pill-medium">Medium Urgency</span>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="pill pill-low">Low Urgency</span>
+                            </c:otherwise>
+                        </c:choose>
+                        <span class="pill pill-low">Qty: ${request.quantity}</span>
                     </div>
                 </div>
             </div>

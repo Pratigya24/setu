@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,6 +42,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @Transactional
     public String register(@RequestParam String role,
                             @RequestParam String name,
                             @RequestParam String email,
@@ -48,7 +50,7 @@ public class AuthController {
                             @RequestParam(required = false) String address,
                             @RequestParam String password,
                             @RequestParam(required = false) String registrationNumber,
-                            @RequestParam(required = false) Integer capacity,
+                            @RequestParam(required = false) String capacity,
                             @RequestParam(required = false) MultipartFile verificationDocument,
                             @RequestParam(required = false) MultipartFile homePhoto,
                             Model model) {
@@ -61,6 +63,18 @@ public class AuthController {
         if ("NGO".equals(role) && (verificationDocument == null || verificationDocument.isEmpty())) {
             model.addAttribute("errorMsg", "Please upload a verification document to register as a Charitable Home.");
             return "register";
+        }
+
+        // Parse capacity safely - the form field is optional and may arrive as an empty string,
+        // which would otherwise cause a binding failure before this method even runs if bound as Integer.
+        Integer capacityValue = null;
+        if (capacity != null && !capacity.isBlank()) {
+            try {
+                capacityValue = Integer.parseInt(capacity.trim());
+            } catch (NumberFormatException e) {
+                model.addAttribute("errorMsg", "Capacity must be a valid number.");
+                return "register";
+            }
         }
 
         // Handle NGO file uploads FIRST, before saving anything to DB
@@ -110,7 +124,7 @@ public class AuthController {
                 ngo.setAddress(address);
                 ngo.setApproved(false);
                 ngo.setRegistrationNumber(registrationNumber);
-                ngo.setCapacity(capacity);
+                ngo.setCapacity(capacityValue);
                 ngo.setVerificationDocumentPath(docPath);
                 ngo.setHomePhotoPath(photoPath);
                 ngoRepository.save(ngo);
