@@ -1,4 +1,3 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <jsp:include page="header.jsp" />
 
@@ -19,10 +18,26 @@
         <c:forEach var="donation" items="${receivedDonations}">
             <div class="item-card">
                 <div class="item-card__info">
-                    <h3>${donation.title} &mdash; Qty ${donation.quantity}</h3>
-                    <p>From: ${donation.donor.name} &bull; ${donation.donationDate}</p>
+                    <h3>${donation.title} — Qty ${donation.quantity}</h3>
+                    <p>From: ${donation.donor.name} • ${donation.donationDate}</p>
+                    <c:set var="assignment" value="${trackingByDonation[donation.id]}" />
+                    <c:if test="${not empty assignment}">
+                        <p>Volunteer: ${assignment.volunteer.name} &bull; Tracking: ${assignment.status}</p>
+                    </c:if>
                 </div>
                 <span class="pill pill-open">${donation.status}</span>
+                <c:if test="${empty assignment and donation.status != 'COMPLETED'}">
+                    <form action="${pageContext.request.contextPath}/ngo/assign-volunteer" method="post">
+                        <input type="hidden" name="donationId" value="${donation.id}">
+                        <select name="volunteerId" required>
+                            <option value="">Choose volunteer</option>
+                            <c:forEach var="volunteer" items="${availableVolunteers}">
+                                <option value="${volunteer.id}">${volunteer.name} (${volunteer.availability})</option>
+                            </c:forEach>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Assign Volunteer</button>
+                    </form>
+                </c:if>
             </div>
         </c:forEach>
 

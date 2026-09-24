@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <jsp:include page="header.jsp" />
 
 <div class="dashboard-shell">
@@ -28,9 +29,29 @@
             <div class="item-card">
                 <div class="item-card__info">
                     <h3>${assignment.requestTitle}</h3>
-                    <p>Assigned on ${assignment.assignedDate}</p>
+                    <p>Assigned on ${assignment.assignedDate} &bull; Pickup: ${assignment.donation.pickupAddress}</p>
                 </div>
                 <span class="pill pill-medium">${assignment.status}</span>
+                <c:if test="${assignment.status == 'ASSIGNED'}">
+                    <form action="${pageContext.request.contextPath}/volunteer/assignments/status" method="post">
+                        <input type="hidden" name="assignmentId" value="${assignment.id}">
+                        <input type="hidden" name="status" value="PICKED_UP">
+                        <button type="submit" class="btn btn-primary">Mark Picked Up</button>
+                    </form>
+                </c:if>
+                <c:if test="${assignment.status == 'PICKED_UP'}">
+                    <form action="${pageContext.request.contextPath}/volunteer/assignments/status" method="post">
+                        <input type="hidden" name="assignmentId" value="${assignment.id}">
+                        <input type="hidden" name="status" value="DELIVERED">
+                        <button type="submit" class="btn btn-primary">Mark Delivered</button>
+                    </form>
+                    <c:if test="${not assignment.trackingEnabled}">
+                        <form action="${pageContext.request.contextPath}/volunteer/assignments/tracking/start" method="post">
+                            <input type="hidden" name="assignmentId" value="${assignment.id}">
+                            <button type="submit" class="btn btn-outline">Start Live Tracking</button>
+                        </form>
+                    </c:if>
+                </c:if>
             </div>
         </c:forEach>
         <c:if test="${empty assignments}">

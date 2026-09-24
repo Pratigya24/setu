@@ -67,6 +67,29 @@
         </a>
     </div>
 </td>
+
+<td>
+    <div style="display:flex; gap:0.5rem;">
+        <c:if test="${!v.approved}">
+            <a href="${pageContext.request.contextPath}/admin/approve-volunteer?id=${v.id}" class="btn btn-primary" style="padding:0.3rem 0.7rem; font-size:0.75rem;">Approve</a>
+            <a href="${pageContext.request.contextPath}/admin/reject-volunteer?id=${v.id}"
+               class="btn btn-outline"
+               style="padding:0.3rem 0.7rem; font-size:0.75rem; color:#b91c1c; border-color:#fecaca;"
+               onclick="return confirm('Reject this volunteer? They will be notified by email and removed.');">
+                Reject
+            </a>
+        </c:if>
+        <c:if test="${v.approved}">
+            <a href="${pageContext.request.contextPath}/admin/delete-volunteer?id=${v.id}"
+               class="btn btn-outline"
+               style="padding:0.3rem 0.7rem; font-size:0.75rem; color:#b91c1c; border-color:#fecaca;"
+               onclick="return confirm('Delete this volunteer permanently?');">
+                Delete
+            </a>
+        </c:if>
+    </div>
+</td>
+
                     </tr>
                 </c:forEach>
                 </tbody>

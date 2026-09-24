@@ -6,13 +6,13 @@
     <aside class="sidebar">
         <p class="sidebar__title">Donor Menu</p>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/dashboard">Dashboard</a>
-        <a class="sidebar__link sidebar__link--active" href="${pageContext.request.contextPath}/donor/browse-ngos">Browse NGOs</a>
+	<a class="sidebar__link sidebar__link--active" href="${pageContext.request.contextPath}/donor/browse-ngos">Browse Charitable Homes</a>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/my-donations">My Donations</a>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/profile">My Profile</a>
     </aside>
 
     <div class="dashboard-content">
-        <h1>Browse NGOs &amp; Requirements</h1>
+	<h1>Browse Charitable Homes &amp; Requirements</h1>
         <p class="subtitle">Find a request that matches what you can give</p>
 
         <c:forEach var="request" items="${requestList}">

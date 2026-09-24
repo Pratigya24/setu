@@ -30,7 +30,7 @@
                     <label for="category">Category</label>
                     <select id="category" name="categoryId" required>
                         <c:forEach var="cat" items="${categoryList}">
-                            <option value="${cat.id}">${cat.categoryName}</option>
+                            <option value="${cat.id}">${cat.name}</option>
                         </c:forEach>
                     </select>
                 </div>
@@ -41,6 +41,10 @@
                 <div class="form-group">
                     <label for="description">Description</label>
                     <textarea id="description" name="description" rows="3" placeholder="Condition, pickup details, etc."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="pickupAddress">Pickup Address</label>
+                    <textarea id="pickupAddress" name="pickupAddress" rows="3" placeholder="Where should the volunteer collect it?" required></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary">Post Item</button>
             </form>

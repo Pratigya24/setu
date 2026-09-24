@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <jsp:include page="header.jsp" />
 
 <div class="form-wrapper">
@@ -15,17 +16,17 @@
     </c:if>
 
     <form action="${pageContext.request.contextPath}/donor/donate" method="post">
-        <input type="hidden" name="requestId" value="${selectedRequest.requestId}">
+        <input type="hidden" name="requestId" value="${selectedRequest.id}">
 
         <div class="form-group">
-            <label for="itemName">Item Name</label>
-            <input type="text" id="itemName" name="itemName" placeholder="e.g. Rice, Blankets, Books" required>
+            <label for="title">Item Name</label>
+            <input type="text" id="title" name="title" placeholder="e.g. Rice, Blankets, Books" required>
         </div>
         <div class="form-group">
             <label for="category">Category</label>
             <select id="category" name="categoryId" required>
                 <c:forEach var="cat" items="${categoryList}">
-                    <option value="${cat.categoryId}">${cat.categoryName}</option>
+                    <option value="${cat.id}">${cat.name}</option>
                 </c:forEach>
             </select>
         </div>

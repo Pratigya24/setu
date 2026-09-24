@@ -1,11 +1,14 @@
 package com.setu.repository;
 
-import com.setu.entity.Assignment;
-import com.setu.entity.Volunteer;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import com.setu.entity.Assignment;
+import com.setu.entity.Volunteer;
 
 public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
     List<Assignment> findByVolunteer(Volunteer volunteer);
+    Optional<Assignment> findByDonationId(Long donationId);
 }
