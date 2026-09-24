@@ -4,7 +4,6 @@ import com.setu.entity.Category;
 import com.setu.repository.CategoryRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
