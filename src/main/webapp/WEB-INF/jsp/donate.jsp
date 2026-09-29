@@ -36,7 +36,12 @@
         </div>
         <div class="form-group">
             <label for="pickupAddress">Pickup Address</label>
-            <textarea id="pickupAddress" name="pickupAddress" rows="3" placeholder="Where should the item be picked up from?" required></textarea>
+            <textarea id="pickupAddress" name="pickupAddress" rows="3"
+                      placeholder="Where should the item be picked up from?"
+                      required>${donorProfile.fullAddress}</textarea>
+            <p style="font-size:0.78rem; color:#64748b; margin-top:0.35rem;">
+                Your detailed donor address is prefilled. Update it if this donation should be collected elsewhere.
+            </p>
         </div>
         <button type="submit" class="btn btn-primary">Submit Donation</button>
     </form>

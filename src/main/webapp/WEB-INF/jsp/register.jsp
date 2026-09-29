@@ -62,9 +62,38 @@
                         </div>
                     </div>
 
+                    <p class="auth-divider">Address details</p>
                     <div class="form-group">
-                        <label for="address">Address</label>
-                        <input type="text" id="address" name="address" placeholder="City, State">
+                        <label for="addressLine1">Address Line 1</label>
+                        <input type="text" id="addressLine1" name="addressLine1" placeholder="House / building number, street" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addressLine2">Address Line 2</label>
+                        <input type="text" id="addressLine2" name="addressLine2" placeholder="Apartment, area, locality">
+                    </div>
+                    <div class="form-group">
+                        <label for="landmark">Landmark</label>
+                        <input type="text" id="landmark" name="landmark" placeholder="Nearby landmark">
+                    </div>
+                    <div class="field-row">
+                        <div class="form-group">
+                            <label for="city">City / Town</label>
+                            <input type="text" id="city" name="city" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State / Province</label>
+                            <input type="text" id="state" name="state" required>
+                        </div>
+                    </div>
+                    <div class="field-row">
+                        <div class="form-group">
+                            <label for="postalCode">Postal / PIN Code</label>
+                            <input type="text" id="postalCode" name="postalCode" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="country">Country</label>
+                            <input type="text" id="country" name="country" value="India" required>
+                        </div>
                     </div>
 
                     <div class="form-group">

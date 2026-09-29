@@ -38,9 +38,38 @@
                     <input type="text" id="phone" name="phone" value="${ngoProfile.phone}" required>
                 </div>
 
+                <p class="auth-divider">Detailed Address</p>
                 <div class="form-group">
-                    <label for="address">Address</label>
-                    <input type="text" id="address" name="address" value="${ngoProfile.address}">
+                    <label for="addressLine1">Address Line 1</label>
+                    <input type="text" id="addressLine1" name="addressLine1" value="${ngoProfile.addressLine1}" placeholder="House / building number, street">
+                </div>
+                <div class="form-group">
+                    <label for="addressLine2">Address Line 2</label>
+                    <input type="text" id="addressLine2" name="addressLine2" value="${ngoProfile.addressLine2}" placeholder="Area, locality, ward">
+                </div>
+                <div class="form-group">
+                    <label for="landmark">Landmark</label>
+                    <input type="text" id="landmark" name="landmark" value="${ngoProfile.landmark}">
+                </div>
+                <div class="field-row">
+                    <div class="form-group">
+                        <label for="city">City / Town</label>
+                        <input type="text" id="city" name="city" value="${ngoProfile.city}">
+                    </div>
+                    <div class="form-group">
+                        <label for="state">State / Province</label>
+                        <input type="text" id="state" name="state" value="${ngoProfile.state}">
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div class="form-group">
+                        <label for="postalCode">Postal / PIN Code</label>
+                        <input type="text" id="postalCode" name="postalCode" value="${ngoProfile.postalCode}">
+                    </div>
+                    <div class="form-group">
+                        <label for="country">Country</label>
+                        <input type="text" id="country" name="country" value="${ngoProfile.country}">
+                    </div>
                 </div>
 
                 <div class="form-group">

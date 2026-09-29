@@ -33,7 +33,7 @@
                         </c:if>
                     </div>
                     <p style="margin-top:0.75rem;">
-                        <strong>Address:</strong> ${ngo.address}<br>
+                        <strong>Address:</strong> ${ngo.fullAddress}<br>
                         <strong>Phone:</strong> ${ngo.phone}<br>
                         <strong>Email:</strong> ${ngo.email}
                     </p>

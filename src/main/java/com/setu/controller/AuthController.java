@@ -48,6 +48,13 @@ public class AuthController {
                             @RequestParam String email,
                             @RequestParam String phone,
                             @RequestParam(required = false) String address,
+                            @RequestParam(required = false) String addressLine1,
+                            @RequestParam(required = false) String addressLine2,
+                            @RequestParam(required = false) String landmark,
+                            @RequestParam(required = false) String city,
+                            @RequestParam(required = false) String state,
+                            @RequestParam(required = false) String postalCode,
+                            @RequestParam(required = false, defaultValue = "India") String country,
                             @RequestParam String password,
                             @RequestParam(required = false) String registrationNumber,
                             @RequestParam(required = false) String capacity,
@@ -111,6 +118,13 @@ public class AuthController {
         user.setEmail(email);
         user.setPhone(phone);
         user.setAddress(address);
+        user.setAddressLine1(addressLine1);
+        user.setAddressLine2(addressLine2);
+        user.setLandmark(landmark);
+        user.setCity(city);
+        user.setState(state);
+        user.setPostalCode(postalCode);
+        user.setCountry(country);
         user.setPassword(encoder.encode(password));
         user.setRole(role);
         userRepository.save(user);
@@ -122,6 +136,13 @@ public class AuthController {
                 ngo.setEmail(email);
                 ngo.setPhone(phone);
                 ngo.setAddress(address);
+                ngo.setAddressLine1(addressLine1);
+                ngo.setAddressLine2(addressLine2);
+                ngo.setLandmark(landmark);
+                ngo.setCity(city);
+                ngo.setState(state);
+                ngo.setPostalCode(postalCode);
+                ngo.setCountry(country);
                 ngo.setApproved(false);
                 ngo.setRegistrationNumber(registrationNumber);
                 ngo.setCapacity(capacityValue);

@@ -79,8 +79,10 @@ public class ViewController {
     }
 
     @GetMapping("/donor/donate")
-    public String donatePage(@RequestParam(required = false) Long requestId, Model model) {
+    public String donatePage(@RequestParam(required = false) Long requestId,
+                             HttpSession session, Model model) {
         model.addAttribute("categoryList", categoryRepository.findAll());
+        model.addAttribute("donorProfile", getLoggedInUser(session));
         if (requestId != null) {
             requestRepository.findById(requestId).ifPresent(r -> model.addAttribute("selectedRequest", r));
         }
@@ -219,13 +221,27 @@ public class ViewController {
     @PostMapping("/donor/profile")
     public String updateDonorProfile(@RequestParam String name,
                                       @RequestParam String phone,
-                                      @RequestParam String address,
+                                      @RequestParam(required = false) String address,
+                                      @RequestParam(required = false) String addressLine1,
+                                      @RequestParam(required = false) String addressLine2,
+                                      @RequestParam(required = false) String landmark,
+                                      @RequestParam(required = false) String city,
+                                      @RequestParam(required = false) String state,
+                                      @RequestParam(required = false) String postalCode,
+                                      @RequestParam(required = false) String country,
                                       HttpSession session, Model model) {
 
         User user = getLoggedInUser(session);
         user.setName(name);
         user.setPhone(phone);
         user.setAddress(address);
+        user.setAddressLine1(addressLine1);
+        user.setAddressLine2(addressLine2);
+        user.setLandmark(landmark);
+        user.setCity(city);
+        user.setState(state);
+        user.setPostalCode(postalCode);
+        user.setCountry(country);
         userRepository.save(user);
         session.setAttribute("userName", name);
 
@@ -332,13 +348,27 @@ public class ViewController {
     @PostMapping("/ngo/profile")
     public String updateNgoProfile(@RequestParam String name,
                                     @RequestParam String phone,
-                                    @RequestParam String address,
+                                    @RequestParam(required = false) String address,
+                                    @RequestParam(required = false) String addressLine1,
+                                    @RequestParam(required = false) String addressLine2,
+                                    @RequestParam(required = false) String landmark,
+                                    @RequestParam(required = false) String city,
+                                    @RequestParam(required = false) String state,
+                                    @RequestParam(required = false) String postalCode,
+                                    @RequestParam(required = false) String country,
                                     @RequestParam String description,
                                     HttpSession session, Model model) {
         NGO ngo = getLoggedInNgo(session);
         ngo.setName(name);
         ngo.setPhone(phone);
         ngo.setAddress(address);
+        ngo.setAddressLine1(addressLine1);
+        ngo.setAddressLine2(addressLine2);
+        ngo.setLandmark(landmark);
+        ngo.setCity(city);
+        ngo.setState(state);
+        ngo.setPostalCode(postalCode);
+        ngo.setCountry(country);
         ngo.setDescription(description);
         ngoRepository.save(ngo);
         session.setAttribute("userName", name);
