@@ -72,6 +72,12 @@ public class ViewController {
         return "browse-ngos";
     }
 
+    @GetMapping("/donor/charitable-homes")
+    public String verifiedCharitableHomes(Model model) {
+        model.addAttribute("ngoList", ngoRepository.findByApproved(true));
+        return "verified-charitable-homes";
+    }
+
     @GetMapping("/donor/donate")
     public String donatePage(@RequestParam(required = false) Long requestId, Model model) {
         model.addAttribute("categoryList", categoryRepository.findAll());

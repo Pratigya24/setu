@@ -23,7 +23,8 @@
         <c:choose>
             <c:when test="${sessionScope.role == 'DONOR'}">
                 <a href="${pageContext.request.contextPath}/donor/dashboard">Dashboard</a>
-                <a href="${pageContext.request.contextPath}/donor/browse-ngos">Browse Homes</a>
+                <a href="${pageContext.request.contextPath}/donor/browse-ngos">Browse Requirements</a>
+                <a href="${pageContext.request.contextPath}/donor/charitable-homes">Verified Homes</a>
                 <span class="role-badge">Donor</span>
                 <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline">Logout</a>
             </c:when>
