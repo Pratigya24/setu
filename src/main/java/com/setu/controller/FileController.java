@@ -67,6 +67,24 @@ public class FileController {
         return serveFile(path);
     }
 
+    @GetMapping("/donor/view-document")
+    public ResponseEntity<Resource> viewDocumentAsDonor(@RequestParam String path, HttpSession session)
+            throws IOException {
+        if (!"DONOR".equals(session.getAttribute("role"))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        boolean belongsToApprovedNgo = ngoRepository.findByApproved(true).stream()
+                .anyMatch(ngo -> path.equals(ngo.getVerificationDocumentPath())
+                        || path.equals(ngo.getHomePhotoPath()));
+
+        if (!belongsToApprovedNgo) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        return serveFile(path);
+    }
+
     private ResponseEntity<Resource> serveFile(String path) throws IOException {
         Path resolved = Paths.get(path).normalize().toAbsolutePath();
 

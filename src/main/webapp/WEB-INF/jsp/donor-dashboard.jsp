@@ -7,7 +7,8 @@
         <p class="sidebar__title">Donor Menu</p>
         <a class="sidebar__link sidebar__link--active" href="${pageContext.request.contextPath}/donor/dashboard">Dashboard</a>
         
-<a class="sidebar__link" href="${pageContext.request.contextPath}/donor/browse-ngos">Browse Charitable Homes</a>        
+        <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/browse-ngos">Browse Requirements</a>
+        <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/charitable-homes">Verified Charitable Homes</a>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/my-donations">My Donations</a>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/profile">My Profile</a>
     </aside>
@@ -22,6 +23,14 @@
         </div>
 
         <p class="subtitle">Here's a summary of your donation activity</p>
+
+        <div class="panel" style="margin-bottom:1.5rem;">
+            <p class="panel__title">Transparency</p>
+            <p style="margin-bottom:0.8rem;">Review the verified registration details and documents of approved charitable homes.</p>
+            <a href="${pageContext.request.contextPath}/donor/charitable-homes" class="btn btn-primary">
+                View Verified Charitable Homes
+            </a>
+        </div>
 
         <div class="stat-grid">
             <div class="stat-card">
