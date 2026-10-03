@@ -1,8 +1,10 @@
 package com.setu.controller;
 
 import com.setu.entity.NGO;
+import com.setu.entity.Donation;
 import com.setu.entity.User;
 import com.setu.repository.NGORepository;
+import com.setu.repository.DonationRepository;
 import com.setu.repository.UserRepository;
 
 import jakarta.servlet.http.HttpSession;
@@ -27,6 +29,7 @@ public class FileController {
 
     @Autowired private UserRepository userRepository;
     @Autowired private NGORepository ngoRepository;
+    @Autowired private DonationRepository donationRepository;
 
     private static final Path ALLOWED_DIR = Paths.get("uploads/ngo-documents/").normalize().toAbsolutePath();
 
@@ -85,6 +88,32 @@ public class FileController {
         return serveFile(path);
     }
 
+    @GetMapping("/view-donation-photo")
+    public ResponseEntity<Resource> viewDonationPhoto(@RequestParam Long donationId, HttpSession session)
+            throws IOException {
+        Donation donation = donationRepository.findById(donationId).orElse(null);
+        if (donation == null || donation.getPhotoPath() == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        String role = (String) session.getAttribute("role");
+        Long userId = (Long) session.getAttribute("userId");
+        boolean allowed = false;
+        if ("DONOR".equals(role) && donation.getDonor() != null
+                && donation.getDonor().getId().equals(userId)) {
+            allowed = true;
+        } else if ("NGO".equals(role)) {
+            User user = userId == null ? null : userRepository.findById(userId).orElse(null);
+            NGO ngo = user == null ? null : ngoRepository.findByEmail(user.getEmail()).orElse(null);
+            allowed = ngo != null && ("AVAILABLE".equals(donation.getStatus())
+                    || (donation.getNgo() != null && ngo.getId().equals(donation.getNgo().getId())));
+        }
+        if (!allowed) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return serveDonationPhoto(donation.getPhotoPath());
+    }
+
     private ResponseEntity<Resource> serveFile(String path) throws IOException {
         Path resolved = Paths.get(path).normalize().toAbsolutePath();
 
@@ -100,6 +129,23 @@ public class FileController {
 
         String contentType = Files.probeContentType(resolved);
 
+        return ResponseEntity.ok()
+                .contentType(contentType != null ? MediaType.parseMediaType(contentType) : MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resolved.getFileName() + "\"")
+                .body(resource);
+    }
+
+    private ResponseEntity<Resource> serveDonationPhoto(String path) throws IOException {
+        Path donationDir = Paths.get("uploads/donation-photos/").normalize().toAbsolutePath();
+        Path resolved = Paths.get(path).normalize().toAbsolutePath();
+        if (!resolved.startsWith(donationDir)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        Resource resource = new UrlResource(resolved.toUri());
+        if (!resource.exists() || !resource.isReadable()) {
+            return ResponseEntity.notFound().build();
+        }
+        String contentType = Files.probeContentType(resolved);
         return ResponseEntity.ok()
                 .contentType(contentType != null ? MediaType.parseMediaType(contentType) : MediaType.APPLICATION_OCTET_STREAM)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resolved.getFileName() + "\"")

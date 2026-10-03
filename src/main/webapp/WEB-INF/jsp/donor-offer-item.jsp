@@ -21,7 +21,7 @@
         </c:if>
 
         <div class="form-wrapper" style="margin: 0;">
-            <form action="${pageContext.request.contextPath}/donor/offer-item" method="post">
+            <form action="${pageContext.request.contextPath}/donor/offer-item" method="post" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="title">Item Name</label>
                     <input type="text" id="title" name="title" placeholder="e.g. Old Blankets, School Books, Rice bags" required>
@@ -41,6 +41,13 @@
                 <div class="form-group">
                     <label for="description">Description</label>
                     <textarea id="description" name="description" rows="3" placeholder="Condition, pickup details, etc."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="donationPhoto">Photo of the item</label>
+                    <input type="file" id="donationPhoto" name="donationPhoto" accept="image/*" required>
+                    <p style="font-size:0.78rem; color:#64748b; margin-top:0.35rem;">
+                        Upload a clear photo so charitable homes can decide whether they need it.
+                    </p>
                 </div>
                 <div class="form-group">
                     <label for="pickupAddress">Pickup Address</label>

@@ -29,6 +29,12 @@
                 <div class="item-card__info">
                     <h3>${item.title}</h3>
                     <p>${item.description}</p>
+                    <c:if test="${not empty item.photoPath}">
+                        <p style="margin:0.6rem 0;">
+                            <a href="${pageContext.request.contextPath}/view-donation-photo?donationId=${item.id}"
+                               target="_blank" class="btn btn-outline">View Donated Item Photo</a>
+                        </p>
+                    </c:if>
                     <div class="item-card__meta">
                         <span class="pill pill-low">Qty: ${item.quantity}</span>
                         <span class="pill pill-open">Offered by: ${item.donor.name}</span>
@@ -36,7 +42,7 @@
                 </div>
                 <form action="${pageContext.request.contextPath}/ngo/accept-donation" method="post">
                     <input type="hidden" name="id" value="${item.id}">
-                    <button type="submit" class="btn btn-primary">Accept</button>
+                    <button type="submit" class="btn btn-primary">Request / Claim Item</button>
                 </form>
             </div>
         </c:forEach>

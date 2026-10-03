@@ -20,6 +20,10 @@
                 <div class="item-card__info">
                     <h3>${donation.title} — Qty ${donation.quantity}</h3>
                     <p>From: ${donation.donor.name} • ${donation.donationDate}</p>
+                    <c:if test="${not empty donation.photoPath}">
+                        <p><a href="${pageContext.request.contextPath}/view-donation-photo?donationId=${donation.id}"
+                              target="_blank" class="btn btn-outline">View Donated Item Photo</a></p>
+                    </c:if>
                     <c:set var="assignment" value="${trackingByDonation[donation.id]}" />
                     <c:if test="${not empty assignment}">
                         <p>Volunteer: ${assignment.volunteer.name} &bull; Tracking: ${assignment.status}</p>

@@ -33,6 +33,8 @@ public class Donation {
 
     private String status;
 
+    private String photoPath;
+
     /*
      * Example:
      * PENDING
@@ -143,6 +145,14 @@ public class Donation {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getPhotoPath() {
+        return photoPath;
+    }
+
+    public void setPhotoPath(String photoPath) {
+        this.photoPath = photoPath;
     }
 
     public LocalDateTime getDonationDate() {

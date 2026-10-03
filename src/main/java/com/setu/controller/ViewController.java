@@ -1,10 +1,17 @@
 package com.setu.controller;
 
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -34,6 +41,8 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class ViewController {
+
+    private static final String DONATION_PHOTO_DIR = "uploads/donation-photos/";
 
     @Autowired private UserRepository userRepository;
     @Autowired private NGORepository ngoRepository;
@@ -96,6 +105,7 @@ public class ViewController {
                                   @RequestParam Integer quantity,
                                   @RequestParam(required = false) String description,
                                   @RequestParam String pickupAddress,
+                                  @RequestParam(required = false) MultipartFile donationPhoto,
                                   HttpSession session, Model model) {
 
         User donor = getLoggedInUser(session);
@@ -108,6 +118,14 @@ public class ViewController {
         donation.setPickupAddress(pickupAddress);
         donation.setStatus("PENDING");
         categoryRepository.findById(categoryId).ifPresent(donation::setCategory);
+        try {
+            donation.setPhotoPath(saveDonationPhoto(donationPhoto));
+        } catch (IOException e) {
+            model.addAttribute("errorMsg", "The donation photo could not be uploaded. Please try again.");
+            model.addAttribute("categoryList", categoryRepository.findAll());
+            model.addAttribute("donorProfile", donor);
+            return "donate";
+        }
 
         if (requestId != null) {
             requestRepository.findById(requestId).ifPresent(req -> {
@@ -116,7 +134,6 @@ public class ViewController {
         }
 
         donationRepository.save(donation);
-        assignAvailableVolunteer(donation);
         model.addAttribute("successMsg", "Thank you for your support! Your donation has been submitted and will be assigned for pickup.");
         model.addAttribute("categoryList", categoryRepository.findAll());
         return "donate";
@@ -135,6 +152,7 @@ public class ViewController {
                                    @RequestParam Integer quantity,
                                    @RequestParam(required = false) String description,
                                    @RequestParam String pickupAddress,
+                                   @RequestParam(required = false) MultipartFile donationPhoto,
                                    HttpSession session, Model model) {
 
         User donor = getLoggedInUser(session);
@@ -147,11 +165,38 @@ public class ViewController {
         donation.setPickupAddress(pickupAddress);
         donation.setStatus("AVAILABLE");
         categoryRepository.findById(categoryId).ifPresent(donation::setCategory);
+        try {
+            donation.setPhotoPath(saveDonationPhoto(donationPhoto));
+        } catch (IOException e) {
+            model.addAttribute("errorMsg", "The donation photo could not be uploaded. Please try again.");
+            model.addAttribute("categoryList", categoryRepository.findAll());
+            return "donor-offer-item";
+        }
 
         donationRepository.save(donation);
         model.addAttribute("successMsg", "Item offered successfully! NGOs can now claim it.");
         model.addAttribute("categoryList", categoryRepository.findAll());
         return "donor-offer-item";
+    }
+
+    private String saveDonationPhoto(MultipartFile photo) throws IOException {
+        if (photo == null || photo.isEmpty()) {
+            return null;
+        }
+        if (photo.getContentType() == null || !photo.getContentType().startsWith("image/")) {
+            throw new IOException("Only image files are allowed.");
+        }
+        Path uploadDirectory = Paths.get(DONATION_PHOTO_DIR).toAbsolutePath().normalize();
+        Files.createDirectories(uploadDirectory);
+        String originalName = photo.getOriginalFilename() == null ? "" : photo.getOriginalFilename();
+        int dot = originalName.lastIndexOf('.');
+        String extension = dot >= 0 ? originalName.substring(dot).toLowerCase() : "";
+        Path destination = uploadDirectory.resolve(UUID.randomUUID() + extension).normalize();
+        if (!destination.startsWith(uploadDirectory)) {
+            throw new IOException("Invalid photo path.");
+        }
+        Files.copy(photo.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
+        return DONATION_PHOTO_DIR + destination.getFileName();
     }
 
     // ---------- NGO: BROWSE & ACCEPT AVAILABLE ITEMS ----------
@@ -175,6 +220,32 @@ public class ViewController {
 
         model.addAttribute("availableList", donationRepository.findByNgoIsNullAndStatus("AVAILABLE"));
         return "ngo-available-donations";
+    }
+
+    @PostMapping("/ngo/accept-request-donation")
+    public String acceptRequestDonation(@RequestParam Long id, HttpSession session, Model model) {
+        NGO ngo = getLoggedInNgo(session);
+        Donation donation = donationRepository.findById(id).orElseThrow();
+
+        if (donation.getNgo() == null || !donation.getNgo().getId().equals(ngo.getId())) {
+            throw new IllegalArgumentException("Donation does not belong to this charitable home.");
+        }
+        if (!"PENDING".equals(donation.getStatus())) {
+            model.addAttribute("errorMsg", "This donation is no longer awaiting acceptance.");
+        } else {
+            donation.setStatus("ACCEPTED");
+            donationRepository.save(donation);
+            assignAvailableVolunteer(donation);
+            model.addAttribute("successMsg", "Donation accepted and sent to an available volunteer.");
+        }
+
+        model.addAttribute("receivedDonations", donationRepository.findByNgo(ngo));
+        model.addAttribute("trackingByDonation", assignmentsFor(donationRepository.findByNgo(ngo)));
+        model.addAttribute("availableVolunteers", volunteerRepository.findAll().stream()
+                .filter(Volunteer::isApproved)
+                .filter(Volunteer::isActive)
+                .collect(Collectors.toList()));
+        return "ngo-donations-received";
     }
     
     

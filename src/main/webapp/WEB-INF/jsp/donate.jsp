@@ -15,7 +15,7 @@
         </div>
     </c:if>
 
-    <form action="${pageContext.request.contextPath}/donor/donate" method="post">
+    <form action="${pageContext.request.contextPath}/donor/donate" method="post" enctype="multipart/form-data">
         <input type="hidden" name="requestId" value="${selectedRequest.id}">
 
         <div class="form-group">
@@ -33,6 +33,13 @@
         <div class="form-group">
             <label for="quantity">Quantity</label>
             <input type="number" id="quantity" name="quantity" placeholder="10" min="1" required>
+        </div>
+        <div class="form-group">
+            <label for="donationPhoto">Photo of the item</label>
+            <input type="file" id="donationPhoto" name="donationPhoto" accept="image/*">
+            <p style="font-size:0.78rem; color:#64748b; margin-top:0.35rem;">
+                Add a clear photo so the charitable home can verify what is being offered.
+            </p>
         </div>
         <div class="form-group">
             <label for="pickupAddress">Pickup Address</label>

@@ -9,6 +9,7 @@
         
         <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/browse-ngos">Browse Requirements</a>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/charitable-homes">Verified Charitable Homes</a>
+        <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/offer-item">Donate an Item</a>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/my-donations">My Donations</a>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/profile">My Profile</a>
     </aside>
