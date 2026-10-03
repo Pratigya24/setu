@@ -1,15 +1,11 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <jsp:include page="header.jsp" />
 
 <div class="dashboard-shell">
-    <aside class="sidebar">
-        <p class="sidebar__title">NGO Menu</p>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/ngo/dashboard">Dashboard</a>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/ngo/post-requirement">Post Requirement</a>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/ngo/requests">My Requests</a>
-        <a class="sidebar__link sidebar__link--active" href="${pageContext.request.contextPath}/ngo/donations-received">Donations Received</a>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/ngo/profile">Profile</a>
-    </aside>
+    <jsp:include page="ngo-sidebar.jsp">
+    <jsp:param name="activePage" value="received" />
+</jsp:include>
 
     <div class="dashboard-content">
         <h1>Donations Received</h1>
@@ -30,18 +26,9 @@
                     </c:if>
                 </div>
                 <span class="pill pill-open">${donation.status}</span>
-                <c:if test="${empty assignment and donation.status != 'COMPLETED'}">
-                    <form action="${pageContext.request.contextPath}/ngo/assign-volunteer" method="post">
-                        <input type="hidden" name="donationId" value="${donation.id}">
-                        <select name="volunteerId" required>
-                            <option value="">Choose volunteer</option>
-                            <c:forEach var="volunteer" items="${availableVolunteers}">
-                                <option value="${volunteer.id}">${volunteer.name} (${volunteer.availability})</option>
-                            </c:forEach>
-                        </select>
-                        <button type="submit" class="btn btn-primary">Assign Volunteer</button>
-                    </form>
-                </c:if>
+               <c:if test="${empty assignment and donation.status == 'ACCEPTED'}">
+    <span class="pill pill-medium">Waiting for a volunteer</span>
+</c:if>
             </div>
         </c:forEach>
 

@@ -3,15 +3,9 @@
 <jsp:include page="header.jsp" />
 
 <div class="dashboard-shell">
-    <aside class="sidebar">
-        <p class="sidebar__title">Donor Menu</p>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/dashboard">Dashboard</a>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/browse-ngos">Browse NGOs</a>
-        <a class="sidebar__link sidebar__link--active" href="${pageContext.request.contextPath}/donor/offer-item">Offer an Item</a>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/my-donations">My Donations</a>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/profile">My Profile</a>
-    </aside>
-
+           <jsp:include page="donor-sidebar.jsp">
+        <jsp:param name="activePage" value="offer" />
+    </jsp:include>
     <div class="dashboard-content">
         <h1>Offer an Item</h1>
         <p class="subtitle">Have something useful to give? List it here and any NGO can claim it.</p>

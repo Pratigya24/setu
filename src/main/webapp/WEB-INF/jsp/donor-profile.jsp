@@ -3,13 +3,9 @@
 <jsp:include page="header.jsp" />
 
 <div class="dashboard-shell">
-    <aside class="sidebar">
-        <p class="sidebar__title">Donor Menu</p>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/dashboard">Dashboard</a>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/browse-ngos">Browse Charitable Homes</a>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/my-donations">My Donations</a>
-        <a class="sidebar__link sidebar__link--active" href="${pageContext.request.contextPath}/donor/profile">My Profile</a>
-    </aside>
+        <jsp:include page="donor-sidebar.jsp">
+        <jsp:param name="activePage" value="profile" />
+    </jsp:include>
 
     <div class="dashboard-content">
         <h1>My Profile</h1>

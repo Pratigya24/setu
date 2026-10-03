@@ -17,8 +17,16 @@ public interface DonationRepository extends JpaRepository<Donation, Long> {
     List<Donation> findByNgoIsNullAndStatus(String status);
 
     List<Donation> findByNgoId(Long ngoId);
+
     @Modifying
     @Transactional
-    @Query("UPDATE Donation d SET d.ngo = :ngo, d.status = 'ACCEPTED' WHERE d.id = :id AND d.ngo IS NULL")
+    @Query("UPDATE Donation d SET d.ngo = :ngo, d.status = 'ACCEPTED' " +
+           "WHERE d.id = :id AND d.ngo IS NULL AND d.status = 'AVAILABLE'")
     int claimDonation(@Param("id") Long id, @Param("ngo") NGO ngo);
+
+    // Accepted by an NGO, but no volunteer has taken the pickup yet
+    @Query("SELECT d FROM Donation d WHERE d.status = 'ACCEPTED' AND d.ngo IS NOT NULL " +
+           "AND NOT EXISTS (SELECT a FROM Assignment a WHERE a.donation = d) " +
+           "ORDER BY d.donationDate DESC")
+    List<Donation> findUnassignedAccepted();
 }

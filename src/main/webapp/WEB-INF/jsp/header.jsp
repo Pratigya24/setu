@@ -31,6 +31,7 @@
             <c:when test="${sessionScope.role == 'NGO'}">
                 <a href="${pageContext.request.contextPath}/ngo/dashboard">Dashboard</a>
                 <a href="${pageContext.request.contextPath}/ngo/post-requirement">Post Requirement</a>
+                <a href="${pageContext.request.contextPath}/ngo/bookings">Occasion Bookings</a>
                 <span class="role-badge">Charitable Home</span>
                 <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline">Logout</a>
             </c:when>

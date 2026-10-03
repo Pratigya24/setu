@@ -36,6 +36,15 @@ import com.setu.repository.RequestRepository;
 import com.setu.repository.UserRepository;
 import com.setu.repository.VolunteerRepository;
 import com.setu.services.EmailService;
+import org.springframework.dao.DataIntegrityViolationException;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Set;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.setu.entity.OccasionBooking;
+import com.setu.repository.OccasionBookingRepository;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -44,6 +53,9 @@ public class ViewController {
 
     private static final String DONATION_PHOTO_DIR = "uploads/donation-photos/";
 
+    private static final Set<String> OCCASION_TYPES =
+            Set.of("Birthday", "Anniversary", "Festival", "Memorial", "Graduation", "Other");
+
     @Autowired private UserRepository userRepository;
     @Autowired private NGORepository ngoRepository;
     @Autowired private VolunteerRepository volunteerRepository;
@@ -51,6 +63,7 @@ public class ViewController {
     @Autowired private RequestRepository requestRepository;
     @Autowired private CategoryRepository categoryRepository;
     @Autowired private AssignmentRepository assignmentRepository;
+    @Autowired private OccasionBookingRepository bookingRepository;
     @Autowired private EmailService emailService;
 
     // ---------- HOME ----------
@@ -139,7 +152,7 @@ public class ViewController {
         return "donate";
     }
 
- // ---------- DONOR: OFFER AN ITEM (no specific NGO) ----------
+    // ---------- DONOR: OFFER AN ITEM (no specific NGO) ----------
     @GetMapping("/donor/offer-item")
     public String offerItemPage(Model model) {
         model.addAttribute("categoryList", categoryRepository.findAll());
@@ -214,8 +227,7 @@ public class ViewController {
         if (updated == 0) {
             model.addAttribute("errorMsg", "Sorry, this item was already claimed by another NGO.");
         } else {
-            donationRepository.findById(id).ifPresent(this::assignAvailableVolunteer);
-            model.addAttribute("successMsg", "Item claimed successfully! It's now assigned to you.");
+        	model.addAttribute("successMsg", "Item claimed! Volunteers can now pick it up.");
         }
 
         model.addAttribute("availableList", donationRepository.findByNgoIsNullAndStatus("AVAILABLE"));
@@ -247,9 +259,7 @@ public class ViewController {
                 .collect(Collectors.toList()));
         return "ngo-donations-received";
     }
-    
-    
-    
+
     @GetMapping("/donor/my-donations")
     public String myDonations(HttpSession session, Model model) {
         User user = getLoggedInUser(session);
@@ -319,6 +329,92 @@ public class ViewController {
         model.addAttribute("successMsg", "Profile updated successfully!");
         model.addAttribute("donorProfile", user);
         return "donor-profile";
+    }
+
+    // ---------- DONOR: OCCASION BOOKING ----------
+    @GetMapping("/donor/book-occasion")
+    public String bookOccasionPage(@RequestParam Long ngoId, HttpSession session, Model model) {
+        NGO ngo = ngoRepository.findById(ngoId).filter(NGO::isApproved).orElseThrow();
+        model.addAttribute("ngo", ngo);
+        model.addAttribute("donorProfile", getLoggedInUser(session));
+        return "occasion-booking";
+    }
+
+    @PostMapping("/donor/book-occasion")
+    public String submitOccasionBooking(@RequestParam Long ngoId,
+            @RequestParam String occasionType,
+            @RequestParam(required = false) String occasionTitle,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate eventDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime,
+            @RequestParam Integer guestCount,
+            @RequestParam String contactPhone,
+            @RequestParam String description,
+            HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+
+        User donor = getLoggedInUser(session);
+        NGO ngo = ngoRepository.findById(ngoId).filter(NGO::isApproved).orElseThrow();
+
+        String error = null;
+        if (!OCCASION_TYPES.contains(occasionType)) {
+            error = "Please select a valid occasion.";
+        } else if ("Other".equals(occasionType) && (occasionTitle == null || occasionTitle.isBlank())) {
+            error = "Please enter the name of your occasion.";
+        } else if (eventDate.isBefore(LocalDate.now())
+                || (eventDate.isEqual(LocalDate.now()) && startTime.isBefore(LocalTime.now()))) {
+            error = "Please choose a future date and time.";
+        } else if (!endTime.isAfter(startTime)) {
+            error = "End time must be after the start time.";
+        } else if (guestCount < 1) {
+            error = "Guest count must be at least 1.";
+        } else if (bookingRepository.existsApprovedOverlap(ngo, eventDate, startTime, endTime)) {
+            error = "This charitable home already has a confirmed booking in that time. Please pick another slot.";
+        }
+
+        if (error != null) {
+            model.addAttribute("errorMsg", error);
+            model.addAttribute("ngo", ngo);
+            model.addAttribute("donorProfile", donor);
+            return "occasion-booking";
+        }
+
+        OccasionBooking booking = new OccasionBooking();
+        booking.setDonor(donor);
+        booking.setNgo(ngo);
+        booking.setOccasionType(occasionType);
+        booking.setOccasionTitle("Other".equals(occasionType) ? occasionTitle.trim() : null);
+        booking.setEventDate(eventDate);
+        booking.setStartTime(startTime);
+        booking.setEndTime(endTime);
+        booking.setGuestCount(guestCount);
+        booking.setContactPhone(contactPhone);
+        booking.setDescription(description);
+        bookingRepository.save(booking);
+
+        redirectAttributes.addFlashAttribute("successMsg",
+                "Request sent! The charitable home will confirm your slot shortly.");
+        return "redirect:/donor/my-bookings";
+    }
+
+    @GetMapping("/donor/my-bookings")
+    public String myBookings(HttpSession session, Model model) {
+        model.addAttribute("bookingList",
+                bookingRepository.findByDonorOrderByCreatedAtDesc(getLoggedInUser(session)));
+        return "donor-bookings";
+    }
+
+    @PostMapping("/donor/cancel-booking")
+    public String cancelBooking(@RequestParam Long bookingId, HttpSession session) {
+        User donor = getLoggedInUser(session);
+        OccasionBooking booking = bookingRepository.findById(bookingId).orElseThrow();
+        if (booking.getDonor() == null || !booking.getDonor().getId().equals(donor.getId())) {
+            throw new IllegalArgumentException("Booking does not belong to this donor.");
+        }
+        if ("PENDING".equals(booking.getStatus()) || "APPROVED".equals(booking.getStatus())) {
+            booking.setStatus("CANCELLED");
+            bookingRepository.save(booking);
+        }
+        return "redirect:/donor/my-bookings";
     }
 
     // ---------- NGO ----------
@@ -408,6 +504,50 @@ public class ViewController {
             assignmentRepository.save(assignment);
         }
         return "redirect:/ngo/donations-received";
+    }
+
+    // ---------- NGO: OCCASION BOOKING REQUESTS ----------
+    @GetMapping("/ngo/bookings")
+    public String ngoBookings(HttpSession session, Model model) {
+        NGO ngo = getLoggedInNgo(session);
+        model.addAttribute("bookingList", bookingRepository.findByNgoOrderByCreatedAtDesc(ngo));
+        return "ngo-bookings";
+    }
+
+    @PostMapping("/ngo/booking-respond")
+    public String respondToBooking(@RequestParam Long bookingId,
+                                   @RequestParam String action,
+                                   @RequestParam(required = false) String note,
+                                   HttpSession session, RedirectAttributes redirectAttributes) {
+        NGO ngo = getLoggedInNgo(session);
+        OccasionBooking booking = bookingRepository.findById(bookingId).orElseThrow();
+
+        if (booking.getNgo() == null || !booking.getNgo().getId().equals(ngo.getId())) {
+            throw new IllegalArgumentException("Booking does not belong to this charitable home.");
+        }
+        if (!"PENDING".equals(booking.getStatus())) {
+            redirectAttributes.addFlashAttribute("errorMsg", "This request was already handled.");
+            return "redirect:/ngo/bookings";
+        }
+
+        if ("APPROVE".equals(action)) {
+            if (bookingRepository.existsApprovedOverlap(ngo, booking.getEventDate(),
+                    booking.getStartTime(), booking.getEndTime())) {
+                redirectAttributes.addFlashAttribute("errorMsg",
+                        "You already approved another booking that overlaps with this time.");
+                return "redirect:/ngo/bookings";
+            }
+            booking.setStatus("APPROVED");
+        } else if ("REJECT".equals(action)) {
+            booking.setStatus("REJECTED");
+        } else {
+            throw new IllegalArgumentException("Invalid action.");
+        }
+        booking.setNgoResponse(note);
+        bookingRepository.save(booking);
+
+        redirectAttributes.addFlashAttribute("successMsg", "Booking " + booking.getStatus().toLowerCase() + ".");
+        return "redirect:/ngo/bookings";
     }
 
     @GetMapping("/ngo/profile")
@@ -604,6 +744,7 @@ public class ViewController {
         model.addAttribute("volunteerList", volunteerRepository.findAll());
         return "admin-manage-volunteers";
     }
+
     @GetMapping("/admin/approve-volunteer")
     public String approveVolunteer(@RequestParam Long id) {
         volunteerRepository.findById(id).ifPresent(v -> {
@@ -614,7 +755,6 @@ public class ViewController {
         return "redirect:/admin/manage-volunteers";
     }
 
-    
     @GetMapping("/admin/reports")
     public String adminReports(Model model) {
         model.addAttribute("totalDonations", donationRepository.count());
@@ -647,8 +787,7 @@ public class ViewController {
         }
         return "redirect:/admin/manage-volunteers";
     }
-   
-    
+
     // ---------- HELPER METHODS ----------
     private User getLoggedInUser(HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");

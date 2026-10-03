@@ -7,6 +7,7 @@
         <p class="sidebar__title">Volunteer Menu</p>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/volunteer/dashboard">Dashboard</a>
         <a class="sidebar__link" href="${pageContext.request.contextPath}/volunteer/assignments">My Assignments</a>
+        <a class="sidebar__link" href="${pageContext.request.contextPath}/volunteer/available-pickups">Available Pickups</a>
         <a class="sidebar__link sidebar__link--active" href="${pageContext.request.contextPath}/volunteer/profile">Profile</a>
     </aside>
 

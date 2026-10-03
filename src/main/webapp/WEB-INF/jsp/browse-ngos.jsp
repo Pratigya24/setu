@@ -3,17 +3,12 @@
 <jsp:include page="header.jsp" />
 
 <div class="dashboard-shell">
-    <aside class="sidebar">
-        <p class="sidebar__title">Donor Menu</p>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/dashboard">Dashboard</a>
-	<a class="sidebar__link sidebar__link--active" href="${pageContext.request.contextPath}/donor/browse-ngos">Browse Requirements</a>
-	<a class="sidebar__link" href="${pageContext.request.contextPath}/donor/charitable-homes">Verified Charitable Homes</a>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/my-donations">My Donations</a>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/donor/profile">My Profile</a>
-    </aside>
+    <jsp:include page="donor-sidebar.jsp">
+        <jsp:param name="activePage" value="browse" />
+    </jsp:include>
 
     <div class="dashboard-content">
-	<h1>Browse Requirements</h1>
+        <h1>Browse Requirements</h1>
         <p class="subtitle">Review each request together with the charitable home requesting support.</p>
 
         <c:forEach var="request" items="${requestList}">
@@ -62,16 +57,16 @@
                                 </c:if>
                             </div>
                             <div style="display:flex; gap:0.7rem; flex-wrap:wrap; margin-top:0.7rem;">
-                                <c:if test="${request.ngo.approved && not empty request.ngo.verificationDocumentPath}">
-                                    <a href="${pageContext.request.contextPath}/donor/view-document?path=${request.ngo.verificationDocumentPath}"
-                                       target="_blank" class="btn btn-outline">View Verified Document</a>
-                                </c:if>
                                 <c:if test="${request.ngo.approved && not empty request.ngo.homePhotoPath}">
                                     <a href="${pageContext.request.contextPath}/donor/view-document?path=${request.ngo.homePhotoPath}"
                                        target="_blank" class="btn btn-outline">View Home Photo</a>
                                 </c:if>
                                 <a href="${pageContext.request.contextPath}/donor/charitable-homes"
                                    class="btn btn-outline">View Full Profile</a>
+                                <c:if test="${request.ngo.approved}">
+                                    <a href="${pageContext.request.contextPath}/donor/book-occasion?ngoId=${request.ngo.id}"
+                                       class="btn btn-outline">&#127881; Book an Occasion</a>
+                                </c:if>
                             </div>
                         </div>
                     </c:if>

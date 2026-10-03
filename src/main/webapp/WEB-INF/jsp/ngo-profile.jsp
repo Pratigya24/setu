@@ -3,14 +3,9 @@
 <jsp:include page="header.jsp" />
 
 <div class="dashboard-shell">
-    <aside class="sidebar">
-        <p class="sidebar__title">NGO Menu</p>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/ngo/dashboard">Dashboard</a>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/ngo/post-requirement">Post Requirement</a>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/ngo/requests">My Requests</a>
-        <a class="sidebar__link" href="${pageContext.request.contextPath}/ngo/donations-received">Donations Received</a>
-        <a class="sidebar__link sidebar__link--active" href="${pageContext.request.contextPath}/ngo/profile">Profile</a>
-    </aside>
+    <jsp:include page="ngo-sidebar.jsp">
+    <jsp:param name="activePage" value="profile" />
+</jsp:include>
 
     <div class="dashboard-content">
         <h1>NGO Profile</h1>
