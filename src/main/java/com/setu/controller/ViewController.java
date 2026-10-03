@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,6 +13,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +36,6 @@ import com.setu.repository.RequestRepository;
 import com.setu.repository.UserRepository;
 import com.setu.repository.VolunteerRepository;
 import com.setu.services.EmailService;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -147,7 +146,7 @@ public class ViewController {
         }
 
         donationRepository.save(donation);
-        model.addAttribute("successMsg", "Thank you for your support! Your donation has been submitted and will be assigned for pickup.");
+        model.addAttribute("successMsg", "Thank you for your support! Your donation has been sent to the charitable home for acceptance.");
         model.addAttribute("categoryList", categoryRepository.findAll());
         return "donate";
     }
@@ -227,7 +226,7 @@ public class ViewController {
         if (updated == 0) {
             model.addAttribute("errorMsg", "Sorry, this item was already claimed by another NGO.");
         } else {
-        	model.addAttribute("successMsg", "Item claimed! Volunteers can now pick it up.");
+            model.addAttribute("successMsg", "Item claimed! Volunteers can now pick it up.");
         }
 
         model.addAttribute("availableList", donationRepository.findByNgoIsNullAndStatus("AVAILABLE"));
@@ -247,16 +246,12 @@ public class ViewController {
         } else {
             donation.setStatus("ACCEPTED");
             donationRepository.save(donation);
-            assignAvailableVolunteer(donation);
-            model.addAttribute("successMsg", "Donation accepted and sent to an available volunteer.");
+            model.addAttribute("successMsg", "Donation accepted. It is now open for volunteers to pick up.");
         }
 
-        model.addAttribute("receivedDonations", donationRepository.findByNgo(ngo));
-        model.addAttribute("trackingByDonation", assignmentsFor(donationRepository.findByNgo(ngo)));
-        model.addAttribute("availableVolunteers", volunteerRepository.findAll().stream()
-                .filter(Volunteer::isApproved)
-                .filter(Volunteer::isActive)
-                .collect(Collectors.toList()));
+        List<Donation> received = donationRepository.findByNgo(ngo);
+        model.addAttribute("receivedDonations", received);
+        model.addAttribute("trackingByDonation", assignmentsFor(received));
         return "ngo-donations-received";
     }
 
@@ -475,35 +470,7 @@ public class ViewController {
         List<Donation> donations = donationRepository.findByNgo(ngo);
         model.addAttribute("receivedDonations", donations);
         model.addAttribute("trackingByDonation", assignmentsFor(donations));
-        model.addAttribute("availableVolunteers", volunteerRepository.findAll().stream()
-                .filter(Volunteer::isApproved)
-                .filter(Volunteer::isActive)
-                .collect(Collectors.toList()));
         return "ngo-donations-received";
-    }
-
-    @PostMapping("/ngo/assign-volunteer")
-    public String assignVolunteer(@RequestParam Long donationId,
-                                  @RequestParam Long volunteerId,
-                                  HttpSession session) {
-        NGO ngo = getLoggedInNgo(session);
-        Donation donation = donationRepository.findById(donationId).orElseThrow();
-        Volunteer volunteer = volunteerRepository.findById(volunteerId).orElseThrow();
-
-        if (donation.getNgo() == null || !donation.getNgo().getId().equals(ngo.getId())) {
-            throw new IllegalArgumentException("Donation does not belong to this charitable home.");
-        }
-        if (!volunteer.isApproved() || !volunteer.isActive()) {
-            throw new IllegalArgumentException("Volunteer is not available.");
-        }
-        if (assignmentRepository.findByDonationId(donationId).isEmpty()) {
-            Assignment assignment = new Assignment();
-            assignment.setDonation(donation);
-            assignment.setVolunteer(volunteer);
-            assignment.setStatus("ASSIGNED");
-            assignmentRepository.save(assignment);
-        }
-        return "redirect:/ngo/donations-received";
     }
 
     // ---------- NGO: OCCASION BOOKING REQUESTS ----------
@@ -601,6 +568,43 @@ public class ViewController {
         model.addAttribute("completedTasks", assignments.stream()
             .filter(assignment -> "DELIVERED".equals(assignment.getStatus())).count());
         return "volunteer-dashboard";
+    }
+
+    // ---------- VOLUNTEER: SELF-ACCEPT PICKUPS ----------
+    @GetMapping("/volunteer/available-pickups")
+    public String availablePickups(Model model) {
+        model.addAttribute("pickupList", donationRepository.findUnassignedAccepted());
+        return "volunteer-available-pickups";
+    }
+
+    @PostMapping("/volunteer/claim-pickup")
+    public String claimPickup(@RequestParam Long donationId, HttpSession session,
+                              RedirectAttributes redirectAttributes) {
+        Volunteer volunteer = getLoggedInVolunteer(session);
+        Donation donation = donationRepository.findById(donationId).orElseThrow();
+
+        if (!volunteer.isApproved() || !volunteer.isActive()) {
+            throw new IllegalArgumentException("Volunteer is not available.");
+        }
+        if (!"ACCEPTED".equals(donation.getStatus())
+                || assignmentRepository.findByDonationId(donationId).isPresent()) {
+            redirectAttributes.addFlashAttribute("errorMsg", "Sorry, this pickup was already taken.");
+            return "redirect:/volunteer/available-pickups";
+        }
+
+        try {
+            Assignment assignment = new Assignment();
+            assignment.setDonation(donation);
+            assignment.setVolunteer(volunteer);
+            assignment.setStatus("ASSIGNED");
+            assignmentRepository.save(assignment);
+        } catch (DataIntegrityViolationException e) {
+            redirectAttributes.addFlashAttribute("errorMsg", "Sorry, another volunteer just took this pickup.");
+            return "redirect:/volunteer/available-pickups";
+        }
+
+        redirectAttributes.addFlashAttribute("successMsg", "Pickup accepted! It is now in your assignments.");
+        return "redirect:/volunteer/assignments";
     }
 
     @GetMapping("/volunteer/assignments")
@@ -822,23 +826,5 @@ public class ViewController {
                     .ifPresent(assignment -> assignments.put(donation.getId(), assignment));
         }
         return assignments;
-    }
-
-    private void assignAvailableVolunteer(Donation donation) {
-        if (donation.getNgo() == null || assignmentRepository.findByDonationId(donation.getId()).isPresent()) {
-            return;
-        }
-
-        volunteerRepository.findAll().stream()
-                .filter(Volunteer::isApproved)
-                .filter(Volunteer::isActive)
-                .findFirst()
-                .ifPresent(volunteer -> {
-                    Assignment assignment = new Assignment();
-                    assignment.setDonation(donation);
-                    assignment.setVolunteer(volunteer);
-                    assignment.setStatus("ASSIGNED");
-                    assignmentRepository.save(assignment);
-                });
     }
 }
