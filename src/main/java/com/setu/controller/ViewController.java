@@ -713,7 +713,7 @@ public class ViewController {
         ngoRepository.findById(id).ifPresent(ngo -> {
             ngo.setApproved(true);
             ngoRepository.save(ngo);
-            emailService.sendNgoApprovedEmail(ngo.getEmail(), ngo.getName());
+//            emailService.sendNgoApprovedEmail(ngo.getEmail(), ngo.getName());
         });
         return "redirect:/admin/dashboard";
     }
@@ -721,7 +721,7 @@ public class ViewController {
     @GetMapping("/admin/reject-ngo")
     public String rejectNgo(@RequestParam Long id) {
         ngoRepository.findById(id).ifPresent(ngo -> {
-            emailService.sendNgoRejectedEmail(ngo.getEmail(), ngo.getName());
+            //emailService.sendNgoRejectedEmail(ngo.getEmail(), ngo.getName());
             // Also remove the linked User account so no orphaned NGO-role
             // user is left behind that could otherwise bypass the approval
             // check at login (see AuthController.login()).
@@ -748,13 +748,13 @@ public class ViewController {
         model.addAttribute("volunteerList", volunteerRepository.findAll());
         return "admin-manage-volunteers";
     }
-
+//
     @GetMapping("/admin/approve-volunteer")
     public String approveVolunteer(@RequestParam Long id) {
         volunteerRepository.findById(id).ifPresent(v -> {
             v.setApproved(true);
             volunteerRepository.save(v);
-            emailService.sendVolunteerApprovedEmail(v.getEmail(), v.getName());
+           // emailService.sendVolunteerApprovedEmail(v.getEmail(), v.getName());
         });
         return "redirect:/admin/manage-volunteers";
     }
@@ -771,7 +771,7 @@ public class ViewController {
         userRepository.deleteById(id);
         return "redirect:/admin/manage-users";
     }
-
+//
     @GetMapping("/admin/delete-ngo")
     public String deleteNgoAccount(@RequestParam Long id) {
         NGO ngo = ngoRepository.findById(id).orElse(null);

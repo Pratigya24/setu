@@ -149,7 +149,7 @@ public class AuthController {
                 ngo.setVerificationDocumentPath(docPath);
                 ngo.setHomePhotoPath(photoPath);
                 ngoRepository.save(ngo);
-                emailService.sendNgoPendingEmail(email, name);
+//                emailService.sendNgoPendingEmail(email, name);
             }
             case "VOLUNTEER" -> {
                 Volunteer volunteer = new Volunteer();
@@ -160,7 +160,7 @@ public class AuthController {
                 volunteer.setActive(true);
                 volunteer.setApproved(false);
                 volunteerRepository.save(volunteer);
-                emailService.sendNgoPendingEmail(email, name);
+               // emailService.sendNgoPendingEmail(email, name);
             }
         }
 
