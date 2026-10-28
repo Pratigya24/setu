@@ -64,6 +64,7 @@ public class ViewController {
     @Autowired private AssignmentRepository assignmentRepository;
     @Autowired private OccasionBookingRepository bookingRepository;
     @Autowired private EmailService emailService;
+    @Autowired private com.setu.repository.StoryRepository storyRepository;
 
     // ---------- HOME ----------
     @GetMapping("/")
@@ -72,6 +73,7 @@ public class ViewController {
                 .filter(u -> "DONOR".equals(u.getRole())).count());
         model.addAttribute("totalNgos", ngoRepository.count());
         model.addAttribute("totalDonations", donationRepository.count());
+        model.addAttribute("stories", storyRepository.findTop6ByOrderByCreatedAtDesc());
         return "home";
     }
 

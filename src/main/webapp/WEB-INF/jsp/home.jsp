@@ -121,6 +121,41 @@
     </div>
 </section>
 
+<c:if test="${not empty stories}">
+<section class="section-v2">
+    <p class="section-v2__eyebrow">Stories of Hope</p>
+    <h2>Real stories from our community</h2>
+    <div class="story-rail">
+        <c:forEach var="s" items="${stories}">
+            <button type="button" class="story-card"
+                    data-title="<c:out value='${s.title}'/>"
+                    data-content="<c:out value='${s.content}'/>"
+                    data-author="<c:out value='${s.authorName}'/>"
+                    data-img="<c:out value='${s.imageUrl}'/>">
+                <img src="<c:out value='${s.imageUrl}'/>" alt="<c:out value='${s.title}'/>">
+                <div class="story-card__body">
+                    <span class="story-card__tag"><c:out value="${s.authorName}"/></span>
+                    <h3><c:out value="${s.title}"/></h3>
+                    <span class="story-card__more">Read story &rarr;</span>
+                </div>
+            </button>
+        </c:forEach>
+    </div>
+</section>
+
+<div class="story-modal" id="storyModal">
+    <div class="story-modal__box">
+        <button type="button" class="story-modal__close" aria-label="Close">&times;</button>
+        <img id="smImg" alt="">
+        <div class="story-modal__text">
+            <span class="story-card__tag" id="smAuthor"></span>
+            <h3 id="smTitle"></h3>
+            <p id="smContent"></p>
+        </div>
+    </div>
+</div>
+</c:if>
+
 <section class="gallery-section">
     <p class="section-v2__eyebrow">Moments of Giving</p>
     <h2>Every donation tells a story</h2>
