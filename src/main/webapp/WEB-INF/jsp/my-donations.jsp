@@ -64,6 +64,11 @@
                     </c:choose>
                 </div>
                 <span class="pill pill-open">${donation.status}</span>
+                
+                <c:if test="${not empty donation.ngo and (donation.status == 'ACCEPTED' or donation.status == 'COMPLETED')}">
+    <a href="${pageContext.request.contextPath}/chat/${donation.id}" class="btn btn-outline">💬 Message</a>
+</c:if>
+
             </div>
         </c:forEach>
 

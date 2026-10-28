@@ -11,27 +11,39 @@
         <h1>Donations Received</h1>
         <p class="subtitle">Donations donors have made against your requests</p>
 
-        <c:forEach var="donation" items="${receivedDonations}">
-            <div class="item-card">
-                <div class="item-card__info">
-                    <h3>${donation.title} — Qty ${donation.quantity}</h3>
-                    <p>From: ${donation.donor.name} • ${donation.donationDate}</p>
-                    <c:if test="${not empty donation.photoPath}">
-                        <p><a href="${pageContext.request.contextPath}/view-donation-photo?donationId=${donation.id}"
-                              target="_blank" class="btn btn-outline">View Donated Item Photo</a></p>
-                    </c:if>
-                    <c:set var="assignment" value="${trackingByDonation[donation.id]}" />
-                    <c:if test="${not empty assignment}">
-                        <p>Volunteer: ${assignment.volunteer.name} &bull; Tracking: ${assignment.status}</p>
-                    </c:if>
-                </div>
-                <span class="pill pill-open">${donation.status}</span>
-               <c:if test="${empty assignment and donation.status == 'ACCEPTED'}">
-    <span class="pill pill-medium">Waiting for a volunteer</span>
-</c:if>
-            </div>
-        </c:forEach>
+<c:forEach var="donation" items="${receivedDonations}">
+    <div class="item-card">
+        <div class="item-card__info">
+            <h3>${donation.title} — Qty ${donation.quantity}</h3>
+            <p>From: ${donation.donor.name} • ${donation.donationDate}</p>
+            <c:if test="${not empty donation.photoPath}">
+                <p><a href="${pageContext.request.contextPath}/view-donation-photo?donationId=${donation.id}"
+                      target="_blank" class="btn btn-outline">View Donated Item Photo</a></p>
+            </c:if>
+            <c:set var="assignment" value="${trackingByDonation[donation.id]}" />
+            <c:if test="${not empty assignment}">
+                <p>Volunteer: ${assignment.volunteer.name} &bull; Tracking: ${assignment.status}</p>
+            </c:if>
+        </div>
 
+        <span class="pill pill-open">${donation.status}</span>
+
+        <c:if test="${donation.status == 'PENDING'}">
+            <form action="${pageContext.request.contextPath}/ngo/accept-request-donation" method="post">
+                <input type="hidden" name="id" value="${donation.id}">
+                <button type="submit" class="btn btn-primary">Accept Donation</button>
+            </form>
+        </c:if>
+
+        <c:if test="${empty assignment and donation.status == 'ACCEPTED'}">
+            <span class="pill pill-medium">Waiting for a volunteer</span>
+        </c:if>
+
+        <c:if test="${donation.status == 'ACCEPTED' or donation.status == 'COMPLETED'}">
+            <a href="${pageContext.request.contextPath}/chat/${donation.id}" class="btn btn-outline">💬 Message</a>
+        </c:if>
+    </div>
+</c:forEach>
         <c:if test="${empty receivedDonations}">
             <div class="empty-state">No donations received yet.</div>
         </c:if>

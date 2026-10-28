@@ -27,6 +27,9 @@
                     </c:if>
                 </div>
                 <span class="pill pill-medium">${assignment.status}</span>
+                <a href="${pageContext.request.contextPath}/chat/${assignment.donation.id}" class="btn btn-outline">💬 Contact Donor &amp; NGO</a>
+                
+                
                 <div>
                     <c:if test="${assignment.status == 'ASSIGNED'}">
                         <form action="${pageContext.request.contextPath}/volunteer/assignments/status" method="post">

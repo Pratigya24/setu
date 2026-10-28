@@ -33,6 +33,9 @@
                     <p>Assigned on ${assignment.assignedDate} &bull; Pickup: ${assignment.donation.pickupAddress}</p>
                 </div>
                 <span class="pill pill-medium">${assignment.status}</span>
+                <c:if test="${not empty donation.ngo and (donation.status == 'ACCEPTED' or donation.status == 'COMPLETED')}">
+    <a href="${pageContext.request.contextPath}/chat/${donation.id}" class="btn btn-outline">💬 Message</a>
+</c:if>
                 <c:if test="${assignment.status == 'ASSIGNED'}">
                     <form action="${pageContext.request.contextPath}/volunteer/assignments/status" method="post">
                         <input type="hidden" name="assignmentId" value="${assignment.id}">
