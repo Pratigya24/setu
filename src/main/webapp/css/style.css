@@ -8,7 +8,7 @@
 html { font-size: 16px; scroll-behavior: smooth; }
 
 body {
-    font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    font-family: 'Inter', 'Noto Sans Devanagari', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
     background-color: #fbfdfc;
     color: #1e293b;
     line-height: 1.6;
@@ -16,8 +16,8 @@ body {
 }
 
 h1, h2, h3, .navbar__logo, .hero-v2 h1, .form-wrapper h2, .auth-wrapper__header h2 {
-    font-family: 'Poppins', 'Inter', sans-serif;
-}
+    font-family: 'Poppins', 'Noto Sans Devanagari', 'Inter', sans-serif;
+    }
 
 a { text-decoration: none; color: inherit; }
 button, input, select, textarea { font-family: inherit; }
@@ -111,6 +111,29 @@ body::before {
     text-transform: uppercase;
     letter-spacing: 0.03em;
     border: 1px solid #bbf7d0;
+}
+
+/* ============ LANGUAGE SWITCHER ============ */
+.lang-switch {
+    display: inline-flex;
+    background: #f1f5f9;
+    border-radius: 0.7rem;
+    padding: 0.2rem;
+    gap: 0.15rem;
+}
+
+.lang-switch a {
+    padding: 0.3rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.lang-switch a.active {
+    background: #ffffff;
+    color: #16a34a;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
 /* ============ BUTTONS ============ */
